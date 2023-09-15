@@ -1,6 +1,11 @@
-% Author: SIMA KUANKUAN
-% Input: gray image
-% Return: best binary threshold
+% Otsu.m
+% Discription: This function implements Otsu's method to find the best binary threshold.
+% 
+% Input:
+%   gray image - the input gray image
+% 
+% Return:
+%   best_threshold - the best binary threshold
 function best_threshold = otsu(img_gray)
 
     % Initialize variables
