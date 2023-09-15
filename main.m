@@ -45,7 +45,7 @@ img_filted = imopen(img_filted, strel('disk', 8));
 % figure; imshow(img_filted); title('Eroded Image');
 
 % threshold = graythresh(img_filted);
-threshold = otsu(img_filted);
+threshold = Otsu(img_filted);
 img_bin = imbinarize(img_filted, threshold);
 figure; imshow(img_bin); title('Binary Image');
 
