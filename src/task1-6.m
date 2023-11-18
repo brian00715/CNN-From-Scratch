@@ -9,16 +9,23 @@ mask_ave_33 = ones(3, 3) / 9;
 img_ave1 = imfilter(img_raw, mask_ave_33);
 mask_ave_55 = ones(7, 7) / 49;
 img_ave2 = imfilter(img_raw, mask_ave_55);
-% figure; subplot(1, 3, 1); imshow(img_raw); title('Original Image');
-% subplot(1, 3, 3); imshow(img_ave2); title('Average Masked Image (5x5)');
-% subplot(1, 3, 2); imshow(img_ave1); title('Average Masked Image (3x3)');
+figure; subplot(3, 1, 1); imshow(img_raw); title('Original Image');
+subplot(3, 1, 2); imshow(img_ave1); title('Average Masked Image (3x3)');
+subplot(3, 1, 3); imshow(img_ave2); title('Average Masked Image (5x5)');
 
-rotating_mask_33 = [0 1 0; -1 0 1; 0 -1 0];
+rotating_mask_33 = [0 1 0;
+                    -1 0 1;
+                    0 -1 0];
 img_rotating1 = imfilter(img_raw, rotating_mask_33);
-rotating_mask_55 = [0 0 1 0 0; 0 1 0 1 0; -1 0 0 0 1; 0 -1 0 -1 0; 0 0 -1 0 0];
+rotating_mask_55 = [
+                    0 0 1 0 0;
+                    0 1 0 1 0;
+                    -1 0 0 0 1;
+                    0 -1 0 -1 0;
+                    0 0 -1 0 0];
 img_rotating2 = imfilter(img_raw, rotating_mask_55);
-% figure; subplot(1, 2, 1); imshow(img_rotating1); title('Rotating Masked Image (3x3)');
-% subplot(1, 2, 2); imshow(img_rotating2); title('Rotating Masked Image (5x5)');
+figure; subplot(2, 1, 1); imshow(img_rotating1); title('Rotating Masked Image (3x3)');
+subplot(2, 1, 2); imshow(img_rotating2); title('Rotating Masked Image (5x5)');
 
 %% subimage comprising the middle line
 img_middle_line = img_raw(ceil(img_size(1) / 2):img_size(1), :);
@@ -45,7 +52,7 @@ img_filted = imopen(img_filted, strel('disk', 8));
 % figure; imshow(img_filted); title('Eroded Image');
 
 % threshold = graythresh(img_filted);
-threshold = Otsu(img_filted);
+threshold = OtsuThres(img_filted);
 img_bin = imbinarize(img_filted, threshold);
 figure; imshow(img_bin); title('Binary Image');
 
@@ -60,6 +67,6 @@ characterProps = regionprops(cc, 'BoundingBox');
 for i = 1:length(characterProps)
     bb = characterProps(i).BoundingBox;
     character = imcrop(img_bin, bb);
-    % figure;
-    % imshow(character);
+    figure;
+    imshow(character);
 end
