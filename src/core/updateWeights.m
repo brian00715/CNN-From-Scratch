@@ -13,25 +13,25 @@ function cnn = updateWeights(cnn, theta)
     % cnn structure
     %   layers: layers of the cnn
     %       type:                       type of the layer, could be input layer ('i'), convolutional
-    %                                   and subsampling layer ('cs'), full connected layer ('fc'),
+    %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
     %                                   and output layer ('o').
     %
     %       filterDim:                  dimension of filter, convolutional and
-    %                                   subsampling layer ('cs') only, and real
+    %                                   subsampling layer ('Conv2D') only, and real
     %                                   filter size is filterDim*filterDim*k
     %                                   where k specifies the numbers of
     %                                   feature map.
     %
     %       numFilters:                 numbers of filters, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       poolDim:                    pool dimension, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('fc') and output layer ('o') only
+    %                                   ('Linear') and output layer ('o') only
     %
-    %       activationFunction:         name of activation function, could be
+    %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %

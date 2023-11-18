@@ -85,18 +85,20 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             end
 
             loss_ar = [loss_ar; curr_loss];
-            preds = predict(cnn, data);
+            % preds = predict(cnn, data);
+            preds = zeros(size(labels));
             curr_acc = sum(preds == labels) / length(preds);
             acc_train = [acc_train; curr_acc];
             progress = 100 * it / floor(options.total_iter);
-            % fprintf('Epoch %d: curr_loss on iteration %d is %f\n',e,it,curr_loss);
-            fprintf("it:%d (%.2f%%) loss_ar:%f acc:%f lr_ar:%f\n", it, progress, curr_loss, curr_acc, lr);
+            % fprintf('Epoch %d: curr_loss on iteration %d is %f\r', e, it, curr_loss);
+            it_len = strlength(string(options.total_iter));
+            fprintf("it:%*d (%6.2f%%) loss:%.2f acc:%5.2f lr_ar:%f\n", it_len, it, progress, curr_loss, curr_acc, lr);
         end
 
         preds = predict(cnn, data_t);
         curr_acc = sum(preds == labels_t) / length(preds);
         acc_test = [acc_test; curr_acc];
-        fprintf('Epoch %d: acc:%f\n', e, curr_acc);
+        fprintf('\nEpoch %d: acc:%f\n', e, curr_acc);
 
         % aneal learning rate by factor of two after each epoch
         % lr = lr/1.5;

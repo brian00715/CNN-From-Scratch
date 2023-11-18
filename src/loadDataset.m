@@ -1,8 +1,7 @@
-function [images_train, labels_train, images_test, labels_test] = loadDataset(options)
+function [images_train, labels_train, images_test, labels_test] = loadDataset(data_path, options)
     addpath('core');
     labels_name = {'0', '4', '7', '8', 'A', 'D', 'H'};
-    path = "data/p_dataset_26";
-    files = dir(path);
+    files = dir(data_path);
     images_train = [];
     labels_train = [];
     images_test = [];
@@ -13,7 +12,7 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(op
         curr_file = files(i).name;
 
         if sum(strcmp(curr_file, labels_name)) > 0
-            fullPath = fullfile(path, curr_file);
+            fullPath = fullfile(data_path, curr_file);
             filesInFolder = dir(fullPath);
             num_files = length(filesInFolder);
             num_train = floor(num_files * options.train_ratio);
@@ -23,8 +22,14 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(op
 
                 if endsWith(filename, '.png')
                     img = imread(fullfile(fullPath, filename));
+                    % apply random transformation
+                    if options.transform
+                        img = randomTrans(img);
+                    end
+
                     img = imresize(img, [img_dim, img_dim]);
                     img = double(img) / 255; % normalize
+
                     % img = rgb2gray(img);
                     % img = imbinarize(img);
                     % img = reshape(img,1,[]);
@@ -57,8 +62,8 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(op
     labels_test = permute(labels_test, [2, 1]);
 
     if options.save
-        save('data/train.mat', 'images_train', 'labels_train');
-        save('data/test.mat', 'images_test', 'labels_test');
+        save('../data/train.mat', 'images_train', 'labels_train');
+        save('../data/test.mat', 'images_test', 'labels_test');
     end
 
 end

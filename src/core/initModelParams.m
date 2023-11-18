@@ -17,25 +17,25 @@ function cnn = initModelParams(cnn, X, numClasses)
     % cnn structure
     %   layers: layers of the cnn
     %       type:                       type of the layer, could be input layer ('i'), convolutional
-    %                                   and subsampling layer ('cs'), full connected layer ('fc'),
+    %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
     %                                   and output layer ('o').
     %
     %       filterDim:                  dimension of filter, convolutional and
-    %                                   subsampling layer ('cs') only, and real
+    %                                   subsampling layer ('Conv2D') only, and real
     %                                   filter size is filterDim*filterDim*k
     %                                   where k specifies the numbers of
     %                                   feature map.
     %
     %       numFilters:                 numbers of filters, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       poolDim:                    pool dimension, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('fc') and output layer ('o') only
+    %                                   ('Linear') and output layer ('o') only
     %
-    %       activationFunction:         name of activation function, could be
+    %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %
@@ -69,17 +69,17 @@ function cnn = initModelParams(cnn, X, numClasses)
     % Specify each layer's activation function
     for i = 2:numLayers
 
-        if ~isfield(cnn.layers{i}, 'activationFunction')
-            cnn.layers{i}.activationFunction = 'sigmoid';
+        if ~isfield(cnn.layers{i}, 'actiFunc')
+            cnn.layers{i}.actiFunc = 'sigmoid';
         end
 
         if (i == numLayers) && (cnn.layers{i}.softmax) == 1 && ...
-                (~strcmp(cnn.layers{i}.activationFunction, 'sigmoid'))
+                (~strcmp(cnn.layers{i}.actiFunc, 'sigmoid'))
             warning('Will aply sigmoid function to softmax layer');
-            cnn.layers{i}.activationFunction = 'sigmoid';
+            cnn.layers{i}.actiFunc = 'sigmoid';
         end
 
-        switch cnn.layers{i}.activationFunction
+        switch cnn.layers{i}.actiFunc
             case 'sigmoid'
                 cnn.layers{i - 1}.realActivationFunction = @(x)sigmoid(x);
                 cnn.layers{i - 1}.realGradientFunction = @(x)sigmoidGradient(x);
@@ -99,7 +99,7 @@ function cnn = initModelParams(cnn, X, numClasses)
         if strcmp(cnn.layers{i}.type, 'i')
             outDim = size(X);
             cnn.layers{i}.outDim = outDim(1:3);
-        elseif strcmp(cnn.layers{i}.type, 'cs')
+        elseif strcmp(cnn.layers{i}.type, 'Conv2D')
             filterDim = cnn.layers{i}.filterDim;
             numFilters = cnn.layers{i}.numFilters;
             filterDim3 = cnn.layers{i - 1}.outDim(3);
@@ -112,9 +112,9 @@ function cnn = initModelParams(cnn, X, numClasses)
             pooledSize = featureDim - filterDim + 1; % dimension of convolved image
             pooledSize = pooledSize / poolDim;
             cnn.layers{i}.outDim = [pooledSize pooledSize numFilters];
-        elseif strcmp(cnn.layers{i}.type, 'fc') || strcmp(cnn.layers{i}.type, 'o')
+        elseif strcmp(cnn.layers{i}.type, 'Linear') || strcmp(cnn.layers{i}.type, 'o')
 
-            if strcmp(cnn.layers{i - 1}.type, 'cs') || strcmp(cnn.layers{i - 1}.type, 'i')
+            if strcmp(cnn.layers{i - 1}.type, 'Conv2D') || strcmp(cnn.layers{i - 1}.type, 'i')
                 hiddenSize = cnn.layers{i - 1}.outDim(1) .^ 2 * cnn.layers{i - 1}.outDim(3);
                 hiddenUnits = cnn.layers{i}.hiddenUnits;
                 r = sqrt(6) / sqrt(hiddenUnits + hiddenSize + 1);

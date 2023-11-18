@@ -19,7 +19,7 @@ function cnn = forward(cnn, X)
 
         if strcmp(cnn.layers{i}.type, 'i')
             cnn.layers{i}.activations = X;
-        elseif strcmp(cnn.layers{i}.type, 'cs')
+        elseif strcmp(cnn.layers{i}.type, 'Conv2D')
             filterDim = cnn.layers{i}.filterDim;
             featureDim = cnn.layers{i - 1}.outDim(1);
             convDim = featureDim - filterDim + 1;
@@ -33,7 +33,7 @@ function cnn = forward(cnn, X)
                     curFilter = cnn.layers{i - 1}.W(:, :, :, filterNum);
                     curFilter = rot90(curFilter, 2);
                     im = cnn.layers{i - 1}.activations(:, :, :, imageNum);
-                    convolvedFeatures = convn(im, curFilter, 'valid');
+                    convolvedFeatures = convn(im, curFilter, 'valid'); % zero-padded convolution
                     convolvedFeatures = convolvedFeatures + cnn.layers{i - 1}.b(filterNum);
                     convolvedFeatures = cnn.layers{i - 1}.realActivationFunction(convolvedFeatures);
                     cnn.layers{i}.convolvedFeatures(:, :, filterNum, imageNum) = convolvedFeatures;
@@ -55,7 +55,7 @@ function cnn = forward(cnn, X)
 
             end
 
-        elseif strcmp(cnn.layers{i}.type, 'fc') || (strcmp(cnn.layers{i}.type, 'o') && cnn.layers{i}.softmax == false)
+        elseif strcmp(cnn.layers{i}.type, 'Linear') || (strcmp(cnn.layers{i}.type, 'o') && cnn.layers{i}.softmax == false)
             activations = reshape(cnn.layers{i - 1}.activations, [], numImages);
             cnn.layers{i}.activations = cnn.layers{i - 1}.realActivationFunction(cnn.layers{i - 1}.W * activations + repmat(cnn.layers{i - 1}.b, 1, numImages));
         elseif strcmp(cnn.layers{i}.type, 'o') && cnn.layers{i}.softmax == true

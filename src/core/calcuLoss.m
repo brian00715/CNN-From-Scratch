@@ -18,8 +18,12 @@ function [cnn, loss] = calcuLoss(cnn, x, y, options)
         groundTruth = full(sparse(y, 1:numImages, 1, numClasses, numImages));
         loss = -1 ./ numImages * groundTruth(:)' * log(cnn.layers{end}.activations(:)); % cross-entrophy loss
         % l2 loss
-        for i = 1:numLayers - 1
-            loss = loss + l2_penalty * sum(cnn.layers{i}.W(:) .^ 2) + l2_penalty * sum(cnn.layers{i}.b(:) .^ 2);
+        if options.use_l2
+
+            for i = 1:numLayers - 1
+                loss = loss + l2_penalty * sum(cnn.layers{i}.W(:) .^ 2); %+ l2_penalty * sum(cnn.layers{i}.b(:) .^ 2);
+            end
+
         end
 
         % in fact, the gradient of cross-entrophy loss w.r.t. to the softmax layer is just like this. it's so easy that I can't believe it.
@@ -27,7 +31,7 @@ function [cnn, loss] = calcuLoss(cnn, x, y, options)
     else
         groundTruth = full(sparse(y, 1:numImages, 1, numClasses, numImages));
 
-        if strcmp(cnn.layers{numLayers - 1}.activationFunction, 'tanh')
+        if strcmp(cnn.layers{numLayers - 1}.actiFunc, 'tanh')
             groundTruth(groundTruth == 0) = -1;
         end
 

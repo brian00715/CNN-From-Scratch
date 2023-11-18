@@ -18,25 +18,25 @@ function [grad, cnn] = backward(cnn, X, options)
     % cnn structure
     %   layers: layers of the cnn
     %       type:                       type of the layer, could be input layer ('i'), convolutional
-    %                                   and subsampling layer ('cs'), full connected layer ('fc'),
+    %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
     %                                   and output layer ('o').
     %
     %       filterDim:                  dimension of filter, convolutional and
-    %                                   subsampling layer ('cs') only, and real
+    %                                   subsampling layer ('Conv2D') only, and real
     %                                   filter size is filterDim*filterDim*k
     %                                   where k specifies the numbers of
     %                                   feature map.
     %
     %       numFilters:                 numbers of filters, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       poolDim:                    pool dimension, convolutional and
-    %                                   subsampling layer ('cs') only
+    %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('fc') and output layer ('o') only
+    %                                   ('Linear') and output layer ('o') only
     %
-    %       activationFunction:         name of activation function, could be
+    %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %
@@ -74,12 +74,12 @@ function [grad, cnn] = backward(cnn, X, options)
     %% Compute delta
     for i = numLayers - 1:-1:2
 
-        if strcmp(cnn.layers{i}.type, 'cs') % Delta of 'cs'
+        if strcmp(cnn.layers{i}.type, 'Conv2D') % Delta of 'Conv2D'
 
-            if strcmp(cnn.layers{i + 1}.type, 'fc') || strcmp(cnn.layers{i + 1}.type, 'o') % Previous layer is 'fc' or 'o'
+            if strcmp(cnn.layers{i + 1}.type, 'Linear') || strcmp(cnn.layers{i + 1}.type, 'o') % Previous layer is 'Linear' or 'o'
                 delta_s = cnn.layers{i}.W' * cnn.layers{i + 1}.delta;
                 delta_s = reshape(delta_s, [cnn.layers{i}.outDim numImages]);
-            else % Previous layer is 'cs'
+            else % Previous layer is 'Conv2D'
 
                 numFilters = cnn.layers{i + 1}.numFilters;
                 delta_s = zeros([cnn.layers{i}.outDim numImages]);
@@ -113,7 +113,7 @@ function [grad, cnn] = backward(cnn, X, options)
             end
 
             cnn.layers{i}.delta = delta_c .* cnn.layers{i - 1}.realGradientFunction(cnn.layers{i}.convolvedFeatures);
-        elseif strcmp(cnn.layers{i}.type, 'fc') % Delta of 'fc'
+        elseif strcmp(cnn.layers{i}.type, 'Linear') % Delta of 'Linear'
             cnn.layers{i}.delta = cnn.layers{i}.W' * cnn.layers{i + 1}.delta ...
                 .* cnn.layers{i - 1}.realGradientFunction(cnn.layers{i}.activations);
         end
@@ -123,7 +123,7 @@ function [grad, cnn] = backward(cnn, X, options)
     %% Compute gradient
     for i = numLayers - 1:-1:1
 
-        if strcmp(cnn.layers{i + 1}.type, 'cs')
+        if strcmp(cnn.layers{i + 1}.type, 'Conv2D')
             numFilters = cnn.layers{i + 1}.numFilters;
             Wgrad = zeros(size(cnn.layers{i}.W));
             bgrad = zeros(size(cnn.layers{i}.b));
@@ -148,14 +148,18 @@ function [grad, cnn] = backward(cnn, X, options)
                 bgrad(filterNum) = sum(b_i(:)) / numImages;
             end
 
-            % cnn.layers{i}.Wgrad = Wgrad;
-            % cnn.layers{i}.bgrad = bgrad;
-            cnn.layers{i}.Wgrad = Wgrad + l2_penalty * cnn.layers{i}.W;
-            cnn.layers{i}.bgrad = bgrad + l2_penalty * cnn.layers{i}.b;
+            cnn.layers{i}.bgrad = bgrad;
 
-        elseif strcmp(cnn.layers{i + 1}.type, 'fc') || strcmp(cnn.layers{i + 1}.type, 'o')
+            if options.use_l2
+                cnn.layers{i}.Wgrad = Wgrad + l2_penalty * cnn.layers{i}.W;
+                % cnn.layers{i}.bgrad = bgrad + l2_penalty * cnn.layers{i}.b;
+            else
+                cnn.layers{i}.Wgrad = Wgrad;
+            end
 
-            if strcmp(cnn.layers{i}.type, 'cs')
+        elseif strcmp(cnn.layers{i + 1}.type, 'Linear') || strcmp(cnn.layers{i + 1}.type, 'o')
+
+            if strcmp(cnn.layers{i}.type, 'Conv2D')
                 activations = reshape(cnn.layers{i}.activations, [], numImages);
                 cnn.layers{i}.Wgrad = cnn.layers{i + 1}.delta * activations' / numImages;
             else
@@ -164,8 +168,11 @@ function [grad, cnn] = backward(cnn, X, options)
 
             cnn.layers{i}.bgrad = sum(cnn.layers{i + 1}.delta, 2) / numImages;
 
-            cnn.layers{i}.Wgrad = cnn.layers{i}.Wgrad + l2_penalty * cnn.layers{i}.W;
-            cnn.layers{i}.bgrad = cnn.layers{i}.bgrad + l2_penalty * cnn.layers{i}.b;
+            if options.use_l2
+                cnn.layers{i}.Wgrad = cnn.layers{i}.Wgrad + l2_penalty * cnn.layers{i}.W;
+                % cnn.layers{i}.bgrad = cnn.layers{i}.bgrad + l2_penalty * cnn.layers{i}.b;
+            end
+
         end
 
     end

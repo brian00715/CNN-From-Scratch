@@ -33,7 +33,7 @@ layers = [
 
           maxPooling2dLayer(2, 'Stride', 2, 'Name', 'maxpool2')
 
-          fullyConnectedLayer(10, 'Name', 'fc')
+          fullyConnectedLayer(10, 'Name', 'Linear')
           softmaxLayer('Name', 'softmax')
           classificationLayer('Name', 'output')];
 
