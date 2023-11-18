@@ -6,7 +6,7 @@
 % 
 % Return:
 %   best_threshold - the best binary threshold
-function best_threshold = otsu(img_gray)
+function best_threshold = OtsuThres(img_gray)
 
     % Initialize variables
     num_bins = 256; % Number of grayscale levels
