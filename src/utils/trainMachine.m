@@ -1,5 +1,5 @@
 % Description: excute the a complete training process given the settings
-function flag = trainMachine(dataset_options, train_options, ... ,
+function flag = trainMachine(cnn, dataset_options, train_options, ... ,
         data_train, labels_train, data_test, labels_test)
     numClasses = max(labels_train);
     cnn = initModelParams(cnn, data_train, numClasses);

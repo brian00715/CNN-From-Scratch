@@ -85,12 +85,14 @@ for subexp = 1:3
     [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_options);
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 1.2 conv layer design
 
 %% 1.2.1 filter number
+
+disp("1.2.1 filter number")
 
 cnn1.layers = {
                struct('type', 'input') %input layer
@@ -124,6 +126,7 @@ dataset_options.img_dim = 124;
 [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_options);
 
 for subexp = 1:3
+    fprintf("1.2.1 filter number subexp: %d\n", subexp)
     cnn = cnns{subexp};
     log_path = sprintf("../logs/exp1_2/model_%d/", subexp);
 
@@ -132,11 +135,12 @@ for subexp = 1:3
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 1.2.2 filter size
 
+fprintf("1.2.2 filter size\n")
 % 122 -> conv3 -> 120 -> pool4 -> 30 -> conv3 -> 28 -> pool2 -> 14 ->  conv3 -> 12 -> pool2 -> 6
 cnn1.layers = {
                struct('type', 'input') %input layer
@@ -170,6 +174,7 @@ cnn3.layers = {
 cnns = {cnn1, cnn2, cnn3};
 
 for subexp = 1:3
+    fprintf("1.2.2 filter size subexp: %d\n", subexp)
     cnn = cnns{subexp};
 
     if subexp == 1
@@ -187,11 +192,11 @@ for subexp = 1:3
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 1.3 fully connected layer design
-
+fprintf("1.3 fully connected layer design\n")
 % -> 288
 cnn1.layers = {
                struct('type', 'input') %input layer
@@ -225,6 +230,7 @@ dataset_options.img_dim = 124;
 [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_options);
 
 for subexp = 1:3
+    fprintf("1.3 fully connected layer design subexp: %d\n", subexp)
     cnn = cnns{subexp};
 
     log_path = sprintf("../logs/exp1_3/model_%d/", subexp);
@@ -234,7 +240,7 @@ for subexp = 1:3
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 2 hyperparameter tuning
@@ -242,6 +248,7 @@ end
 %% 2.1 learning rate
 
 %% 2.1.1 lr schedule scheme
+fprintf("2.1.1 lr schedule scheme\n")
 
 cnn.layers = {
               struct('type', 'input') %input layer
@@ -255,6 +262,7 @@ cnn.layers = {
 lr_sheculer = {'fixed', 'cosine', 'cosine_cyclic'};
 
 for subexp = 1:3
+    fprintf("2.1.1 lr schedule scheme subexp: %d\n", subexp)
     train_options.lr_method = lr_sheculer{subexp};
     log_path = sprintf("../logs/exp2_1_1/lr_method_%d/", subexp);
 
@@ -263,15 +271,17 @@ for subexp = 1:3
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 2.1.2 lr magnitude
+fprintf("2.1.2 lr magnitude\n")
 
 lr_max = [0.1, 0.01, 0.001];
 train_options.lr_method = 'cosine_cyclic';
 
 for subexp = 1:3
+    fprintf("2.1.2 lr magnitude subexp: %d\n", subexp)
     train_options.lr_max = lr_max(subexp);
     train_options.lr = train_options.lr_max;
     log_path = sprintf("../logs/exp2_1_2/lr_max_%d/", subexp);
@@ -281,7 +291,7 @@ for subexp = 1:3
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 2.2 batch size
@@ -301,7 +311,7 @@ for subexp = 1:4
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
 
 %% 3 data preprocessing
@@ -309,6 +319,7 @@ end
 %% 3.1 resize
 
 %% 3.2 random transform
+fprintf("3.2 random transform\n")
 
 tf = [
       "only_trans"
@@ -331,6 +342,7 @@ random_trans.rot_range = [-25 25];
 random_trans.scale_ratio = [0.8 1.2];
 
 for subexp = 1:6
+    fprintf("3.2 random transform subexp: %d\n", subexp)
     tf_type = tf{subexp};
 
     switch tf_type
@@ -369,5 +381,5 @@ for subexp = 1:6
     end
 
     train_options.log_path = log_path;
-    trainMachine(dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
 end
