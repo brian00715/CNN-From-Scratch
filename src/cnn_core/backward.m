@@ -1,9 +1,11 @@
-% Description: Compute gradient of CNN
-% Input:
+% @Description: Compute gradient of CNN
+% @Author: Kuankuan Sima
+% @Email: kuankuan_sima@u.nus.edu
+% @Input:
 %   cnn: CNN model
 %   X: Input data
 %   options: Options
-% Output:
+% @Output:
 %   grad: Gradient
 %   cnn: CNN model with updated gradient
 function [grad, cnn] = backward(cnn, X, options)

@@ -1,9 +1,9 @@
-function [images_train, labels_train, images_test, labels_test] = loadDataset(data_path, options)
+function [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, options)
     addpath('cnn_core');
     labels_name = {'0', '4', '7', '8', 'A', 'D', 'H'};
-    images_train = [];
+    data_train = [];
     labels_train = [];
-    images_test = [];
+    data_test = [];
     labels_test = [];
     img_dim = options.img_dim;
 
@@ -25,24 +25,22 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(da
 
                     if endsWith(filename, '.png')
                         img = imread(fullfile(fullPath, filename));
-                        % apply random transformation
-                        if options.transform
-                            img = randomTrans(img);
-                        end
-
-                        img = imresize(img, [img_dim, img_dim]);
-                        img = double(img) / 255; % normalize
-
-                        % img = rgb2gray(img);
-                        % img = imbinarize(img);
-                        % img = reshape(img,1,[]);
                         label = labelChar2Num(curr_file);
 
                         if j <= num_train
-                            images_train = cat(3, images_train, img);
+
+                            if options.apply_rand_tf && options.rand_tf.prob > rand()
+                                img = randTF(img, options.rand_tf);
+                            end
+
+                            img = imresize(img, [img_dim, img_dim]);
+                            img = double(img) / 255; % normalize
+                            data_train = cat(3, data_train, img);
                             labels_train = cat(2, labels_train, label);
                         else
-                            images_test = cat(3, images_test, img);
+                            img = imresize(img, [img_dim, img_dim]);
+                            img = double(img) / 255; % normalize
+                            data_test = cat(3, data_test, img);
                             labels_test = cat(2, labels_test, label);
                         end
 
@@ -79,8 +77,8 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(da
                         if endsWith(filename, '.png')
                             img = imread(fullfile(fullPath, filename));
 
-                            if options.transform
-                                img = randomTrans(img);
+                            if options.apply_rand_tf && p == 1  && options.rand_tf.prob > rand()
+                                img = randTF(img, options.rand_tf);
                             end
 
                             img = imresize(img, [img_dim, img_dim]);
@@ -88,10 +86,10 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(da
                             label = labelChar2Num(curr_file);
 
                             if p == 1
-                                images_train = cat(3, images_train, img);
+                                data_train = cat(3, data_train, img);
                                 labels_train = cat(2, labels_train, label);
                             else
-                                images_test = cat(3, images_test, img);
+                                data_test = cat(3, data_test, img);
                                 labels_test = cat(2, labels_test, label);
                             end
 
@@ -106,18 +104,18 @@ function [images_train, labels_train, images_test, labels_test] = loadDataset(da
         end
 
         if options.shuffle
-            [images_train, labels_train] = shuffleData(images_train, labels_train);
-            [images_test, labels_test] = shuffleData(images_test, labels_test);
+            [data_train, labels_train] = shuffleData(data_train, labels_train);
+            [data_test, labels_test] = shuffleData(data_test, labels_test);
         end
 
-        images_train = reshape(images_train, img_dim, img_dim, 1, []);
+        data_train = reshape(data_train, img_dim, img_dim, 1, []);
         labels_train = permute(labels_train, [2, 1]);
-        images_test = reshape(images_test, img_dim, img_dim, 1, []);
+        data_test = reshape(data_test, img_dim, img_dim, 1, []);
         labels_test = permute(labels_test, [2, 1]);
 
         if options.save
-            save('../data/train.mat', 'images_train', 'labels_train');
-            save('../data/test.mat', 'images_test', 'labels_test');
+            save('../data/train.mat', 'data_train', 'labels_train');
+            save('../data/test.mat', 'data_test', 'labels_test');
         end
 
     end

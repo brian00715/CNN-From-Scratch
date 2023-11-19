@@ -7,17 +7,22 @@ log_path = "../logs/"+date_prefix + "/";
 mkdir(log_path);
 
 %% load dataset
-load_from_file = true;
+load_from_file = false;
+data_path = "../data/";
+dataset_option.load_raw = false;
+dataset_option.shuffle = true;
+dataset_option.img_dim = 124;
+dataset_option.train_ratio = 0.8;
+dataset_option.save = true;
+dataset_option.apply_rand_tf = true;
+random_trans.prob = 0.5;
+random_trans.trans_ratio = 0.01;
+random_trans.rot_range = [-25 25];
+random_trans.scale_ratio = [1 1];
+dataset_option.rand_tf = random_trans;
 
 if ~load_from_file
-    data_path = "../data/";
-    dataset_option.load_raw = false;
-    dataset_option.shuffle = true;
-    dataset_option.img_dim = 124;
-    dataset_option.train_ratio = 0.8;
-    dataset_option.save = true;
-    dataset_option.transform = true;
-    [images_train, labels_train, images_test, labels_test] = loadDataset(data_path, dataset_option);
+    [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_option);
 else
     load("../data/train.mat");
     load("../data/test.mat");
@@ -49,9 +54,9 @@ end
 % 124x124->(conv)120x120x8->(pool)30x30x8->(conv)26x26x16->(pool)13x13x16->(conv)9x9x32->(pool)3x3x32=288
 cnn.layers = {
               struct('type', 'input') %input layer
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 4, 'actiFunc', 'relu')
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 2, 'actiFunc', 'relu')
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 32, 'poolDim', 3, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 4, 'poolDim', 4, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 2, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 3, 'actiFunc', 'relu')
               struct('type', 'Linear', 'hiddenUnits', 100, 'actiFunc', 'relu', 'dropout', 0.2)
               struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
               struct('type', 'output', 'softmax', 1)
@@ -68,32 +73,33 @@ cnn.layers = {
 %               struct('type', 'Linear', 'hiddenUnits', 256, 'actiFunc', 'tanh')
 %               struct('type', 'output', 'softmax', 1)
 %               };
+
 %% define training options
-options.epochs = 40;
+options.epochs = 60;
 options.minibatch = 64;
-options.lr_max = 0.05;
+options.lr_max = 0.1;
 options.lr = options.lr_max;
 options.lr_min = 1e-7;
 options.lr_method = 'cosine_cyclic';
-options.lr_duty = 10; % duty cycle for cosine lr
+options.lr_duty = 20; % epoches per cycle
 options.momentum = 0.9;
 options.log_path = log_path;
 options.l2_penalty = 0.01;
 options.use_l2 = false;
 options.save_best_acc_model = true;
 options.train_mode = true;
-total_iter = round(floor(size(images_train, 4) / options.minibatch) * options.epochs);
+total_iter = round(floor(size(data_train, 4) / options.minibatch) * options.epochs);
 options.total_iter = total_iter;
 fprintf('Total iterations: %d\n', total_iter);
 
 %% train
 numClasses = max(labels_train);
-cnn = initModelParams(cnn, images_train, numClasses);
+cnn = initModelParams(cnn, data_train, numClasses);
 % load("logs/cnn_mnist.mat");
-cnn = learn(cnn, images_train, labels_train, images_test, labels_test, options);
+cnn = learn(cnn, data_train, labels_train, data_test, labels_test, options);
 
 %% test
-preds = predict(cnn, images_test, options);
+[preds, ~] = predict(cnn, data_test);
 acc = sum(preds == labels_test) / length(preds);
 fprintf('Final accuracy: %f\n', acc);
 
@@ -103,4 +109,19 @@ fprintf(fileID, 'Final accuracy: %f\n', acc);
 fclose(fileID);
 save(log_path + "cnn.mat", 'cnn');
 save(log_path + "results_on_test.mat", 'preds', 'labels_test');
-save(log_path + "hyper_params.mat", 'dataset_option', 'options');
+save(log_path + "hyper_params.mat", 'options', "dataset_option");
+
+% convert hyper-parameters to json
+json = jsonencode(options);
+fid = fopen(log_path + "hyper_params.json", 'w');
+fprintf(fid, json);
+json = jsonencode(dataset_option);
+fid = fopen(log_path + "dataset_option.json", 'w');
+fprintf(fid, json);
+
+% convert model structure to json
+model_json = model2json(cnn);
+fid = fopen(log_path + "model.json", 'w');
+fprintf(fid, model_json);
+
+run("viz_result.m");

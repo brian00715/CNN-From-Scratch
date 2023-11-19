@@ -1,4 +1,16 @@
-function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
+% @Description: Learn the CNN model
+% @Author: Kuankuan Sima
+% @Email: kuankuan_sima@u.nus.edu
+% @Input:
+%   cnn: CNN model
+%   data: training data
+%   labels: training labels
+%   data_t: testing data
+%   labels_t: testing labels
+%   options: options for learning
+% @Output:
+%   cnn_final: learned CNN model
+function [cnn_final] = learn(cnn, data_train, labels_train, data_test, labels_test, options)
     % This file is modified based on UFLDL Deep Learning Tutorial
     % http://ufldl.stanford.edu/tutorial/
     %
@@ -23,8 +35,8 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
     %  minibatch*  - size of minibatch
     %  momentum    - momentum constant, defualts to 0.9
 
-    %%======================================================================
     %% Setup
+    addpath("utils");
     theta = unrollWeights(cnn);
     assert(all(isfield(options, {'epochs', 'lr', 'minibatch'})), 'Some options not defined');
 
@@ -35,7 +47,7 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
     epochs = options.epochs;
     lr = options.lr_max;
     minibatch = options.minibatch;
-    m = length(labels); % training set size
+    m = length(labels_train); % training set size
     % Setup for momentum
     mom = 0.5;
     momIncrease = 20;
@@ -62,23 +74,20 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             mom = options.momentum;
 
             % get next randomly selected minibatch
-            mb_data = data(:, :, :, rp(s:s + minibatch - 1));
-            mb_labels = labels(rp(s:s + minibatch - 1));
+            mb_data = data_train(:, :, :, rp(s:s + minibatch - 1));
+            mb_labels = labels_train(rp(s:s + minibatch - 1));
 
             cnn = forward(cnn, mb_data, options);
             [cnn, curr_loss] = calcuLoss(cnn, mb_data, mb_labels, options);
-            grad = backward(cnn, mb_data, options);
 
-            % Instructions: Add in the weighted velocity vector to the
-            % gradient evaluated above scaled by the learning rate.
-            % Then update the current weights theta according to the
-            % sgd update rule
-
-            % update weights
-            % velocity = mom * velocity + lr * grad;
-            % theta = theta - velocity;
-            velocity = mom * velocity + (1 - mom) * grad;
-            theta = theta - lr * velocity;
+            if options.train_mode
+                grad = backward(cnn, mb_data, options);
+                % update weights
+                % velocity = mom * velocity + lr * grad;
+                % theta = theta - velocity;
+                velocity = mom * velocity + (1 - mom) * grad;
+                theta = theta - lr * velocity;
+            end
 
             % update model
             if exist('theta', 'var')
@@ -86,7 +95,7 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             end
 
             loss_ar = [loss_ar; curr_loss];
-            % preds = predict(cnn, data);
+            % [preds,~] = predict(cnn, data);
             % preds = zeros(size(labels));
             % curr_acc = sum(preds == labels) / length(preds);
             curr_acc = 0;
@@ -96,28 +105,26 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             fprintf("it:%*d (%6.2f%%) loss:%.5f acc:%5.2f lr_ar:%f\n", it_len, it, progress, curr_loss, curr_acc, lr);
         end
 
-        preds = predict(cnn, data_t, options);
-        curr_acc_test = sum(preds == labels_t) / length(preds);
+        [preds,~] = predict(cnn, data_test);
+        curr_acc_test = sum(preds == labels_test) / length(preds);
         acc_test = [acc_test; curr_acc_test];
-        preds = predict(cnn, data, options);
-        curr_acc_train = sum(preds == labels) / length(preds);
+        [preds,~] = predict(cnn, data_train);
+        curr_acc_train = sum(preds == labels_train) / length(preds);
         acc_train = [acc_train; curr_acc_train];
         fprintf('\nEpoch %d: acc_test:%f acc_train:%f\n', e, curr_acc_test, curr_acc_train);
 
-        if curr_acc > best_acc
-            best_acc = curr_acc;
+        if curr_acc_test > best_acc
+            best_acc = curr_acc_test;
 
             if options.save_best_acc_model
                 save(options.log_path + 'cnn_best_acc.mat', 'cnn');
-                fileID = fopen(log_path + "results.txt", 'w');
-                fprintf(fileID, 'Best accuracy: %f\n', acc);
+                fileID = fopen(options.log_path + "results.txt", 'w');
+                fprintf(fileID, 'Best accuracy: %f\n', curr_acc_test);
                 fclose(fileID);
             end
 
         end
 
-        % aneal learning rate by factor of two after each epoch
-        % lr = lr/1.5;
         lr = lrSchedule(e, epochs, options);
         lr_ar = [lr_ar; lr];
 

@@ -1,3 +1,6 @@
+% @Description: Learning rate schedule.
+% @Author: Kuankuan Sima
+% @Email: kuankuan_sima@u.nus.edu
 function [lr] = lrSchedule(curr_epoch, total_epoch, options)
     % Cosine annealing learning rate schedule
     lr_max = options.lr_max;
@@ -15,7 +18,7 @@ function [lr] = lrSchedule(curr_epoch, total_epoch, options)
         case 'step'
             lr = lr_max * 0.1 ^ (floor(curr_epoch / 30));
         case 'exp'
-            lr = lr_max * 0.95 ^ (curr_epoch);
+            lr = lr_max * 0.9 ^ (curr_epoch);
         case 'const'
             lr = lr_max;
         otherwise

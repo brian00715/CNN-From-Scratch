@@ -1,5 +1,17 @@
-addpath("utils")
-log_path = "../logs/11-19_11-39-13/";
+clear all;
+close all;
+addpath("utils");
+set(gca, 'Visible', 'off');
+
+% find the latest log
+log_path = "../logs/";
+logs = dir(log_path);
+logs = logs(~ismember({logs.name}, {'.', '..'}));
+[~, idx] = max([logs.datenum]);
+log_path = log_path + logs(idx).name + "/";
+disp("Loading log from " + log_path);
+
+% log_path = "../logs/11-19_15-56-26/";
 
 show_figures = false;
 
@@ -22,7 +34,6 @@ legend('Test', 'Train');
 title('Accuracy');
 saveas(gcf, log_path + 'acc.png');
 
-
 figure(2);
 plot(loss_ar, 'LineWidth', 2);
 grid on;
@@ -42,6 +53,15 @@ saveas(gcf, log_path + 'lr.png');
 % draw confusion matrix
 figure(4);
 load(log_path + 'results_on_test.mat');
-confusionchart(confusionmat(preds, labels_test));
+miss_detect_cnt = zeros(7,1);
+miss_detect_idx = [];
+for i=1:size(preds,1)
+    if preds(i)~=labels_test(i)
+        miss_detect_idx = [miss_detect_idx;i];
+        miss_detect_cnt(labels_test(i)) = miss_detect_cnt(labels_test(i))+1;
+    end
+end
+confu_mat = confusionmat(labels_test, preds);
+confusionchart(confu_mat);
 title('Confusion Matrix');
 saveas(gcf, log_path + 'confusion_matrix.png');
