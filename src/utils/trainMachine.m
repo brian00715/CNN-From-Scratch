@@ -23,7 +23,7 @@ function flag = trainMachine(cnn, dataset_options, train_options, ... ,
     fid = fopen(train_options.log_path + "train_options.json", 'w');
     fprintf(fid, json);
     json = jsonencode(dataset_options);
-    fid = fopen(train_options.log_path + "dataset_optionss.json", 'w');
+    fid = fopen(train_options.log_path + "dataset_options.json", 'w');
     fprintf(fid, json);
 
     % convert model structure to json
@@ -31,4 +31,7 @@ function flag = trainMachine(cnn, dataset_options, train_options, ... ,
     fid = fopen(train_options.log_path + "model.json", 'w');
     fprintf(fid, model_json);
     flag = true;
+
+    vizExpLog(train_options.log_path, preds, labels_test);
+
 end
