@@ -5,7 +5,7 @@ close all;
 addpath("utils");
 addpath("cnn_core");
 
-% load data
+% default options
 load_from_file = false;
 data_path = "../data/";
 dataset_options.load_raw = false;
@@ -14,8 +14,22 @@ dataset_options.img_dim = 124;
 dataset_options.train_ratio = 0.8;
 dataset_options.save = false;
 dataset_options.apply_rand_tf = false;
-
 [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_options);
+
+train_options.epochs = 60;
+train_options.minibatch = 64;
+train_options.lr_max = 0.01;
+train_options.lr = train_options.lr_max;
+train_options.lr_min = 1e-7;
+train_options.lr_method = 'cosine_cyclic';
+train_options.lr_duty = 20; % epoches per cycle
+train_options.momentum = 0.9;
+train_options.l2_penalty = 0.01;
+train_options.use_l2 = false;
+train_options.save_best_acc_model = true;
+train_options.train_mode = true;
+total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
+train_options.total_iter = total_iter;
 
 %% 1 model design
 %% 1.1 layer design
@@ -52,21 +66,6 @@ cnn3.layers = {
                };
 cnns = {cnn1, cnn2, cnn3};
 
-train_options.epochs = 60;
-train_options.minibatch = 64;
-train_options.lr_max = 0.01;
-train_options.lr = train_options.lr_max;
-train_options.lr_min = 1e-7;
-train_options.lr_method = 'cosine_cyclic';
-train_options.lr_duty = 20; % epoches per cycle
-train_options.momentum = 0.9;
-train_options.l2_penalty = 0.01;
-train_options.use_l2 = false;
-train_options.save_best_acc_model = true;
-train_options.train_mode = true;
-total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
-train_options.total_iter = total_iter;
-
 for subexp = 1:3
     sprintf("1.1 layer design subexp: %d", subexp)
     cnn = cnns{subexp};
@@ -92,7 +91,7 @@ end
 
 %% 1.2.1 filter number
 
-disp("1.2.1 filter number")
+sprintf("1.2.1 filter number")
 
 cnn1.layers = {
                struct('type', 'input') %input layer
@@ -259,7 +258,7 @@ cnn.layers = {
               struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
               struct('type', 'output', 'softmax', 1)
               };
-lr_sheculer = {'fixed', 'cosine', 'cosine_cyclic'};
+lr_sheculer = {'fixed', 'cosine', 'cosine_cyclic', "linear"};
 
 for subexp = 1:3
     fprintf("2.1.1 lr schedule scheme subexp: %d\n", subexp)

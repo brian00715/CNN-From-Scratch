@@ -19,7 +19,7 @@ function flag = trainMachine(cnn, dataset_options, train_options, ... ,
     save(train_options.log_path + "train_options.mat", 'train_options');
 
     % convert hyper-parameters to json
-    json = jsonencode(options);
+    json = jsonencode(train_options);
     fid = fopen(train_options.log_path + "train_options.json", 'w');
     fprintf(fid, json);
     json = jsonencode(dataset_options);

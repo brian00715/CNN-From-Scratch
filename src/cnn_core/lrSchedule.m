@@ -21,6 +21,8 @@ function [lr] = lrSchedule(curr_epoch, total_epoch, options)
             lr = lr_max * 0.9 ^ (curr_epoch);
         case 'const'
             lr = lr_max;
+        case 'fixed'
+            lr = lr_max;
         otherwise
             error('Unknown learning rate schedule %s', options.lr_decay);
     end
