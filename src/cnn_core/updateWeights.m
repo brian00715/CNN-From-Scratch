@@ -1,22 +1,20 @@
-function preds = predict(cnn, X)
+function cnn = updateWeights(cnn, theta)
 
-    % predict: Predict labels of test set
+    % updateWeights: Update the weights of cnn
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    %   preds = predict(cnn,X)
+    %   cnn = updateWeights(cnn, theta)
     %    ---------------------------------------------------------------------------------
     %    Arguments:
     %           cnn         - a cnn whose weights are initialized or specified
-    %           X           - test data. Should be M*N*D*NUM matrix, where
-    %                         a single image is of size M*N*D and NUM specifies
-    %                         numbers of test data
+    %           theta       - weights to update, should be in one column
     %    Return:
-    %           preds       - predictions of test set
+    %           cnn         - updated cnn
     %    ---------------------------------------------------------------------------------
     % cnn structure
     %   layers: layers of the cnn
-    %       type:                       type of the layer, could be input layer ('i'), convolutional
+    %       type:                       type of the layer, could be input layer ('input'), convolutional
     %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
-    %                                   and output layer ('o').
+    %                                   and output layer ('output').
     %
     %       filterDim:                  dimension of filter, convolutional and
     %                                   subsampling layer ('Conv2D') only, and real
@@ -31,15 +29,15 @@ function preds = predict(cnn, X)
     %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('Linear') and output layer ('o') only
+    %                                   ('Linear') and output layer ('output') only
     %
     %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %
-    %       realActivationFunction:     function handle of activation function
+    %       realActiFunc:     function handle of activation function
     %
-    %       realGradientFunction:       function handle of the gradients of the
+    %       realGradFunc:       function handle of the gradients of the
     %                                   activation function
     %
     %       outDim:                     output dimension
@@ -59,8 +57,22 @@ function preds = predict(cnn, X)
     %       bgrad:                      gradients of bias
     %
     %       softmax                     if 1, implement softmax in output
-    %                                   layer, output layer ('o') only
+    %                                   layer, output layer ('output') only
 
-    cnn = forward(cnn, X);
-    [~, preds] = max(cnn.layers{end}.activations, [], 1);
-    preds = preds';
+    numLayers = size(cnn.layers, 1);
+    curIdx = 1;
+
+    for i = 1:numLayers - 1
+        szW = size(cnn.layers{i}.W);
+        numW = numel(cnn.layers{i}.W);
+        W = theta(curIdx:curIdx + numW - 1);
+        cnn.layers{i}.W = reshape(W, szW);
+        curIdx = curIdx + numW;
+    end
+
+    for i = 1:numLayers - 1
+        numb = numel(cnn.layers{i}.b);
+        b = theta(curIdx:curIdx + numb - 1);
+        cnn.layers{i}.b = b;
+        curIdx = curIdx + numb;
+    end

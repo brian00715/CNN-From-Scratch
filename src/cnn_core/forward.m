@@ -1,23 +1,16 @@
-function cnn = forward(cnn, X)
-    % forward: Implentet Feedforward
-    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    %   cnn = forward(cnn,X)
-    %    ---------------------------------------------------------------------------------
-    %    Arguments:
-    %           cnn         - a cnn whose weights are initialized or specified
-    %           X           - training data. Should be M*N*D*NUM matrix, where
-    %                         a single image is of size M*N*D and NUM specifies
-    %                         numbers of training data
-    %    Return:
-    %           cnn         - the updated cnn
-    %    ---------------------------------------------------------------------------------
-
+% Description: Forward pass of model
+% Input:
+%   cnn: model
+%   X: input data
+% Output:
+%   cnn: model with updated outputs
+function cnn = forward(cnn, X, options)
     numImages = size(X, 4);
     numLayers = size(cnn.layers, 1);
 
     for i = 1:numLayers
 
-        if strcmp(cnn.layers{i}.type, 'i')
+        if strcmp(cnn.layers{i}.type, 'input')
             cnn.layers{i}.activations = X;
         elseif strcmp(cnn.layers{i}.type, 'Conv2D')
             filterDim = cnn.layers{i}.filterDim;
@@ -35,7 +28,7 @@ function cnn = forward(cnn, X)
                     im = cnn.layers{i - 1}.activations(:, :, :, imageNum);
                     convolvedFeatures = convn(im, curFilter, 'valid'); % zero-padded convolution
                     convolvedFeatures = convolvedFeatures + cnn.layers{i - 1}.b(filterNum);
-                    convolvedFeatures = cnn.layers{i - 1}.realActivationFunction(convolvedFeatures);
+                    convolvedFeatures = cnn.layers{i - 1}.realActiFunc(convolvedFeatures);
                     cnn.layers{i}.convolvedFeatures(:, :, filterNum, imageNum) = convolvedFeatures;
                 end
 
@@ -55,16 +48,30 @@ function cnn = forward(cnn, X)
 
             end
 
-        elseif strcmp(cnn.layers{i}.type, 'Linear') || (strcmp(cnn.layers{i}.type, 'o') && cnn.layers{i}.softmax == false)
-            activations = reshape(cnn.layers{i - 1}.activations, [], numImages);
-            cnn.layers{i}.activations = cnn.layers{i - 1}.realActivationFunction(cnn.layers{i - 1}.W * activations + repmat(cnn.layers{i - 1}.b, 1, numImages));
-        elseif strcmp(cnn.layers{i}.type, 'o') && cnn.layers{i}.softmax == true
-            % Softmax with sigmoid
+        elseif strcmp(cnn.layers{i}.type, 'Linear') || (strcmp(cnn.layers{i}.type, 'output') && cnn.layers{i}.softmax == false)
+            last_acti = reshape(cnn.layers{i - 1}.activations, [], numImages);
+            output = cnn.layers{i - 1}.W * last_acti + repmat(cnn.layers{i - 1}.b, 1, numImages);
+
+            if options.train_mode == true
+
+                if isfield(cnn.layers{i}, 'dropout')
+                    mask = double(rand(size(output)) < (1 - cnn.layers{i}.dropout));
+                    output = output .* mask;
+                end
+
+            end
+
+            cnn.layers{i}.activations = cnn.layers{i - 1}.realActiFunc(output);
+
+        elseif strcmp(cnn.layers{i}.type, 'output') && cnn.layers{i}.softmax == true
             activations = reshape(cnn.layers{i - 1}.activations, [], numImages);
             activations = cnn.layers{i - 1}.W * activations + repmat(cnn.layers{i - 1}.b, 1, numImages);
+
             activations = bsxfun(@minus, activations, max(activations, [], 1));
             activations = exp(activations);
             cnn.layers{i}.activations = bsxfun(@rdivide, activations, sum(activations));
         end
 
     end
+
+end

@@ -25,8 +25,6 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
 
     %%======================================================================
     %% Setup
-    numClasses = max(labels);
-    cnn = initModelParams(cnn, data, numClasses);
     theta = unrollWeights(cnn);
     assert(all(isfield(options, {'epochs', 'lr', 'minibatch'})), 'Some options not defined');
 
@@ -49,6 +47,7 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
     acc_train = [];
     acc_test = [];
     lr_ar = [];
+    best_acc = 0;
 
     for e = 1:epochs
         % randomly permute indices of data for quick minibatch sampling
@@ -66,7 +65,7 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             mb_data = data(:, :, :, rp(s:s + minibatch - 1));
             mb_labels = labels(rp(s:s + minibatch - 1));
 
-            cnn = forward(cnn, mb_data);
+            cnn = forward(cnn, mb_data, options);
             [cnn, curr_loss] = calcuLoss(cnn, mb_data, mb_labels, options);
             grad = backward(cnn, mb_data, options);
 
@@ -76,8 +75,10 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
             % sgd update rule
 
             % update weights
-            velocity = mom * velocity + lr * grad;
-            theta = theta - velocity;
+            % velocity = mom * velocity + lr * grad;
+            % theta = theta - velocity;
+            velocity = mom * velocity + (1 - mom) * grad;
+            theta = theta - lr * velocity;
 
             % update model
             if exist('theta', 'var')
@@ -86,26 +87,38 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
 
             loss_ar = [loss_ar; curr_loss];
             % preds = predict(cnn, data);
-            preds = zeros(size(labels));
-            curr_acc = sum(preds == labels) / length(preds);
-            acc_train = [acc_train; curr_acc];
+            % preds = zeros(size(labels));
+            % curr_acc = sum(preds == labels) / length(preds);
+            curr_acc = 0;
+            % acc_train = [acc_train; curr_acc];
             progress = 100 * it / floor(options.total_iter);
-            % fprintf('Epoch %d: curr_loss on iteration %d is %f\r', e, it, curr_loss);
             it_len = strlength(string(options.total_iter));
-            fprintf("it:%*d (%6.2f%%) loss:%.2f acc:%5.2f lr_ar:%f\n", it_len, it, progress, curr_loss, curr_acc, lr);
+            fprintf("it:%*d (%6.2f%%) loss:%.5f acc:%5.2f lr_ar:%f\n", it_len, it, progress, curr_loss, curr_acc, lr);
         end
 
-        preds = predict(cnn, data_t);
-        curr_acc = sum(preds == labels_t) / length(preds);
-        acc_test = [acc_test; curr_acc];
-        fprintf('\nEpoch %d: acc:%f\n', e, curr_acc);
+        preds = predict(cnn, data_t, options);
+        curr_acc_test = sum(preds == labels_t) / length(preds);
+        acc_test = [acc_test; curr_acc_test];
+        preds = predict(cnn, data, options);
+        curr_acc_train = sum(preds == labels) / length(preds);
+        acc_train = [acc_train; curr_acc_train];
+        fprintf('\nEpoch %d: acc_test:%f acc_train:%f\n', e, curr_acc_test, curr_acc_train);
+
+        if curr_acc > best_acc
+            best_acc = curr_acc;
+
+            if options.save_best_acc_model
+                save(options.log_path + 'cnn_best_acc.mat', 'cnn');
+                fileID = fopen(log_path + "results.txt", 'w');
+                fprintf(fileID, 'Best accuracy: %f\n', acc);
+                fclose(fileID);
+            end
+
+        end
 
         % aneal learning rate by factor of two after each epoch
         % lr = lr/1.5;
-        lr_options.lr_min = options.lr_min;
-        lr_options.lr_max = options.lr_max;
-        lr_options.method = options.lr_method;
-        lr = lrSchedule(e, epochs, lr_options);
+        lr = lrSchedule(e, epochs, options);
         lr_ar = [lr_ar; lr];
 
     end
@@ -117,5 +130,5 @@ function [cnn_final] = learn(cnn, data, labels, data_t, labels_t, options)
     save(options.log_path + 'acc_train.mat', 'acc_train');
     save(options.log_path + 'acc_test.mat', 'acc_test');
     save(options.log_path + 'lr_ar.mat', 'lr_ar');
-
+    fprintf('Best accuracy: %f\n', best_acc);
 end

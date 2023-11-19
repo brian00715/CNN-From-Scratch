@@ -1,5 +1,5 @@
 ; % show the images that are miss classified
-addpath("core")
+addpath("cnn_core")
 log_path = "../logs/11-19_00-24-01"
 % load(log_path + "/results_on_test.mat")
 

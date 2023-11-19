@@ -16,9 +16,9 @@ function cnn = initModelParams(cnn, X, numClasses)
     %
     % cnn structure
     %   layers: layers of the cnn
-    %       type:                       type of the layer, could be input layer ('i'), convolutional
+    %       type:                       type of the layer, could be input layer ('input'), convolutional
     %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
-    %                                   and output layer ('o').
+    %                                   and output layer ('output').
     %
     %       filterDim:                  dimension of filter, convolutional and
     %                                   subsampling layer ('Conv2D') only, and real
@@ -33,15 +33,15 @@ function cnn = initModelParams(cnn, X, numClasses)
     %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('Linear') and output layer ('o') only
+    %                                   ('Linear') and output layer ('output') only
     %
     %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %
-    %       realActivationFunction:     function handle of activation function
+    %       realActiFunc:     function handle of activation function
     %
-    %       realGradientFunction:       function handle of the gradients of the
+    %       realGradFunc:       function handle of the gradients of the
     %                                   activation function
     %
     %       outDim:                     output dimension
@@ -61,7 +61,7 @@ function cnn = initModelParams(cnn, X, numClasses)
     %       bgrad:                      gradients of bias
     %
     %       softmax                     if 1, implement softmax in output
-    %                                   layer, output layer ('o') only
+    %                                   layer, output layer ('output') only
 
     numLayers = size(cnn.layers, 1);
     cnn.layers{numLayers}.hiddenUnits = numClasses;
@@ -73,22 +73,21 @@ function cnn = initModelParams(cnn, X, numClasses)
             cnn.layers{i}.actiFunc = 'sigmoid';
         end
 
-        if (i == numLayers) && (cnn.layers{i}.softmax) == 1 && ...
-                (~strcmp(cnn.layers{i}.actiFunc, 'sigmoid'))
-            warning('Will aply sigmoid function to softmax layer');
-            cnn.layers{i}.actiFunc = 'sigmoid';
-        end
+        % if (i == numLayers) && (cnn.layers{i}.softmax) == 1 && (~strcmp(cnn.layers{i}.actiFunc, 'sigmoid'))
+        %     warning('Will aply sigmoid function to softmax layer');
+        %     cnn.layers{i}.actiFunc = 'sigmoid';
+        % end
 
         switch cnn.layers{i}.actiFunc
             case 'sigmoid'
-                cnn.layers{i - 1}.realActivationFunction = @(x)sigmoid(x);
-                cnn.layers{i - 1}.realGradientFunction = @(x)sigmoidGradient(x);
+                cnn.layers{i - 1}.realActiFunc = @(x)sigmoid(x);
+                cnn.layers{i - 1}.realGradFunc = @(x)sigmoidGradient(x);
             case 'tanh'
-                cnn.layers{i - 1}.realActivationFunction = @(x)tanh(x);
-                cnn.layers{i - 1}.realGradientFunction = @(x)tanhGradient(x);
+                cnn.layers{i - 1}.realActiFunc = @(x)tanh(x);
+                cnn.layers{i - 1}.realGradFunc = @(x)tanhGradient(x);
             case 'relu'
-                cnn.layers{i - 1}.realActivationFunction = @(x)relu(x);
-                cnn.layers{i - 1}.realGradientFunction = @(x)reluGradient(x);
+                cnn.layers{i - 1}.realActiFunc = @(x)relu(x);
+                cnn.layers{i - 1}.realGradFunc = @(x)reluGradient(x);
         end
 
     end
@@ -96,7 +95,7 @@ function cnn = initModelParams(cnn, X, numClasses)
     % Initialize weights
     for i = 1:numLayers
 
-        if strcmp(cnn.layers{i}.type, 'i')
+        if strcmp(cnn.layers{i}.type, 'input')
             outDim = size(X);
             cnn.layers{i}.outDim = outDim(1:3);
         elseif strcmp(cnn.layers{i}.type, 'Conv2D')
@@ -112,9 +111,9 @@ function cnn = initModelParams(cnn, X, numClasses)
             pooledSize = featureDim - filterDim + 1; % dimension of convolved image
             pooledSize = pooledSize / poolDim;
             cnn.layers{i}.outDim = [pooledSize pooledSize numFilters];
-        elseif strcmp(cnn.layers{i}.type, 'Linear') || strcmp(cnn.layers{i}.type, 'o')
+        elseif strcmp(cnn.layers{i}.type, 'Linear') || strcmp(cnn.layers{i}.type, 'output')
 
-            if strcmp(cnn.layers{i - 1}.type, 'Conv2D') || strcmp(cnn.layers{i - 1}.type, 'i')
+            if strcmp(cnn.layers{i - 1}.type, 'Conv2D') || strcmp(cnn.layers{i - 1}.type, 'input')
                 hiddenSize = cnn.layers{i - 1}.outDim(1) .^ 2 * cnn.layers{i - 1}.outDim(3);
                 hiddenUnits = cnn.layers{i}.hiddenUnits;
                 r = sqrt(6) / sqrt(hiddenUnits + hiddenSize + 1);
@@ -135,5 +134,3 @@ function cnn = initModelParams(cnn, X, numClasses)
         end
 
     end
-
-    kk = 1;

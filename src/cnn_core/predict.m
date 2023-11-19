@@ -1,19 +1,22 @@
-function theta = unrollWeights(cnn)
+function preds = predict(cnn, X,options)
 
-    % unrollWeights: Unroll the weights of to one column
+    % predict: Predict labels of test set
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    %   theta = unrollWeights(cnn)
+    %   preds = predict(cnn,X)
     %    ---------------------------------------------------------------------------------
     %    Arguments:
     %           cnn         - a cnn whose weights are initialized or specified
+    %           X           - test data. Should be M*N*D*NUM matrix, where
+    %                         a single image is of size M*N*D and NUM specifies
+    %                         numbers of test data
     %    Return:
-    %           theta       - unrolled weights
+    %           preds       - predictions of test set
     %    ---------------------------------------------------------------------------------
     % cnn structure
     %   layers: layers of the cnn
-    %       type:                       type of the layer, could be input layer ('i'), convolutional
+    %       type:                       type of the layer, could be input layer ('input'), convolutional
     %                                   and subsampling layer ('Conv2D'), full connected layer ('Linear'),
-    %                                   and output layer ('o').
+    %                                   and output layer ('output').
     %
     %       filterDim:                  dimension of filter, convolutional and
     %                                   subsampling layer ('Conv2D') only, and real
@@ -28,15 +31,15 @@ function theta = unrollWeights(cnn)
     %                                   subsampling layer ('Conv2D') only
     %
     %       hiddenUnits                 hidden units, full connected layer
-    %                                   ('Linear') and output layer ('o') only
+    %                                   ('Linear') and output layer ('output') only
     %
     %       actiFunc:         name of activation function, could be
     %                                   'sigmoid', 'relu' and 'tanh', default
     %                                   is 'sigmoid'
     %
-    %       realActivationFunction:     function handle of activation function
+    %       realActiFunc:     function handle of activation function
     %
-    %       realGradientFunction:       function handle of the gradients of the
+    %       realGradFunc:       function handle of the gradients of the
     %                                   activation function
     %
     %       outDim:                     output dimension
@@ -56,17 +59,10 @@ function theta = unrollWeights(cnn)
     %       bgrad:                      gradients of bias
     %
     %       softmax                     if 1, implement softmax in output
-    %                                   layer, output layer ('o') only
-
-    theta = [];
-    numLayers = size(cnn.layers, 1);
-
-    for i = 1:numLayers - 1
-        W = cnn.layers{i}.W(:);
-        theta = [theta; W];
-    end
-
-    for i = 1:numLayers - 1
-        b = cnn.layers{i}.b(:);
-        theta = [theta; b];
-    end
+    %                                   layer, output layer ('output') only
+    
+    local_option = options;
+    local_option.train_mode = false;
+    cnn = forward(cnn, X,local_option);
+    [~, preds] = max(cnn.layers{end}.activations, [], 1);
+    preds = preds';

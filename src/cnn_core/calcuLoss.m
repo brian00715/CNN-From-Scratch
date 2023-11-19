@@ -6,9 +6,6 @@
 % Output: loss
 function [cnn, loss] = calcuLoss(cnn, x, y, options)
     numImages = size(x, 4);
-    % cnn.layers{1}.activations = x;
-    % cnn.layers{1}.outDim = size(x);
-    % cnn = forward(cnn,x);
     numLayers = size(cnn.layers, 1);
     numClasses = cnn.layers{numLayers}.hiddenUnits;
     l2_penalty = options.l2_penalty;
@@ -40,5 +37,5 @@ function [cnn, loss] = calcuLoss(cnn, x, y, options)
         % cnn.layers{numLayers}.delta = a_nl - groundTruth;
         a_nl = cnn.layers{end}.activations;
         loss = sum(sum((a_nl - groundTruth) .^ 2) / 2) / numImages;
-        cnn.layers{numLayers}.delta =- (groundTruth - a_nl) .* cnn.layers{numLayers - 1}.realGradientFunction(a_nl);
+        cnn.layers{numLayers}.delta =- (groundTruth - a_nl) .* cnn.layers{numLayers - 1}.realGradFunc(a_nl);
     end
