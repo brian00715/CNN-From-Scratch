@@ -22,7 +22,7 @@ train_options.use_l2 = false;
 train_options.save_best_acc_model = true;
 train_options.train_mode = true;
 
-if 1
+if 0
     [data_train, labels_train, data_test, labels_test] = loadDataset("../data/", dataset_options);
     total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
     train_options.total_iter = total_iter;
@@ -68,7 +68,7 @@ if 0
     fclose(fid);
 end
 
-if 0
+if 1
     total_epoch = 40;
     lr = [];
     options.lr_max = 0.01;

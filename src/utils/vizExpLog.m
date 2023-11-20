@@ -24,7 +24,7 @@ function vizExpLog(log_path, preds, labels_test)
     set(f, 'Visible', 'off');
     plot(loss_ar, 'LineWidth', 2);
     grid on;
-    xlabel('Epoch');
+    xlabel('Iteration');
     ylabel('Loss');
     title('Loss');
     saveas(gcf, log_path + 'loss.png');
