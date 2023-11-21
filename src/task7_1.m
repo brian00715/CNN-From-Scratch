@@ -26,34 +26,34 @@ random_trans.rot_range = [-25 25];
 random_trans.scale_ratio = [1 1];
 dataset_option.rand_tf = random_trans;
 
-% load("logs/cnn_mnist.mat");
-data_train = loadMNISTImages("../data/mnist/train-images-idx3-ubyte");
-labels_train = loadMNISTLabels("../data/mnist/train-labels-idx1-ubyte");
-data_test = loadMNISTImages("../data/mnist/t10k-images-idx3-ubyte");
-labels_test = loadMNISTLabels("../data/mnist/t10k-labels-idx1-ubyte");
+%% use MNIST
+% data_train = loadMNISTImages("../data/mnist/train-images-idx3-ubyte");
+% labels_train = loadMNISTLabels("../data/mnist/train-labels-idx1-ubyte");
+% data_test = loadMNISTImages("../data/mnist/t10k-images-idx3-ubyte");
+% labels_test = loadMNISTLabels("../data/mnist/t10k-labels-idx1-ubyte");
+% data_train = imresize(data_train, [32 32]);
+% data_test = imresize(data_test, [32 32]);
+% labels_train(labels_train==0) = 10; % Remap 0 to 10
+% labels_test(labels_test==0) = 10; % Remap 0 to 10
 
-% resize to 124x124
-data_train = imresize(data_train, [124 124]);
-data_test = imresize(data_test, [124 124]);
-
-% if ~load_from_file
-%     [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_option);
-% else
-%     load("../data/train.mat");
-%     load("../data/test.mat");
-% end
+if ~load_from_file
+    [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_option);
+else
+    load("../data/train.mat");
+    load("../data/test.mat");
+end
 
 %% define network structure
 
 % 32x32->(conv)28x28x6->(pool)14x14x6->(conv)10x10x16->(pool)5x5x16=400->(linear)120->(linear)84
-% cnn.layers = {
-%               struct('type', 'input') %input layer
-%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 6, 'poolDim', 2, 'actiFunc', 'relu')
-%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 2, 'actiFunc', 'relu')
-%               struct('type', 'Linear', 'hiddenUnits', 120, 'actiFunc', 'tanh')
-%               struct('type', 'Linear', 'hiddenUnits', 84, 'actiFunc', 'tanh')
-%               struct('type', 'output', 'softmax', 1)
-%               };
+cnn.layers = {
+              struct('type', 'input') %input layer
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 6, 'poolDim', 2, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 2, 'actiFunc', 'relu')
+              struct('type', 'Linear', 'hiddenUnits', 120, 'actiFunc', 'tanh')
+              struct('type', 'Linear', 'hiddenUnits', 84, 'actiFunc', 'tanh')
+              struct('type', 'output', 'softmax', 1)
+              };
 
 % 68x68 ->(conv) 64x64x8 ->(pool) 32x32x8 ->(conv) 28x28x16 ->(pool) 14x14x16 ->(conv) 10x10x32 ->(pool) 5x5x32=1000 ->(linear) 200 ->(linear) 100
 % cnn.layers = {
@@ -67,15 +67,15 @@ data_test = imresize(data_test, [124 124]);
 %               };
 
 % 124x124->(conv)120x120x8->(pool)30x30x8->(conv)26x26x16->(pool)13x13x16->(conv)9x9x32->(pool)3x3x32=288
-cnn.layers = {
-              struct('type', 'input') %input layer
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 4, 'poolDim', 4, 'actiFunc', 'relu')
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 2, 'actiFunc', 'relu')
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 3, 'actiFunc', 'relu')
-              struct('type', 'Linear', 'hiddenUnits', 100, 'actiFunc', 'relu', 'dropout', 0.2)
-              struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
-              struct('type', 'output', 'softmax', 1)
-              };
+% cnn.layers = {
+%               struct('type', 'input') %input layer
+%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 4, 'poolDim', 4, 'actiFunc', 'relu')
+%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 2, 'actiFunc', 'relu')
+%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 3, 'actiFunc', 'relu')
+%               struct('type', 'Linear', 'hiddenUnits', 100, 'actiFunc', 'relu', 'dropout', 0.2)
+%               struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
+%               struct('type', 'output', 'softmax', 1)
+%               };
 
 % 124x124->(conv)120x120x8->(pool)60x60x8->(conv)56x56x16->(pool)28x28x16->(conv)24x24x32->(pool)12x12x32->(conv)8x8x64->(pool)4x4x64=1024
 % cnn.layers = {
@@ -91,7 +91,7 @@ cnn.layers = {
 
 %% define training options
 options.epochs = 60;
-options.minibatch = 64;
+options.minibatch = 128;
 options.lr_max = 0.1;
 options.lr = options.lr_max;
 options.lr_min = 1e-5;
@@ -108,7 +108,7 @@ options.total_iter = total_iter;
 fprintf('Total iterations: %d\n', total_iter);
 
 %% train
-numClasses = max(labels_train)+ 1-min(labels_train) ;
+numClasses = max(labels_train) + 1 - min(labels_train);
 cnn = initModelParams(cnn, data_train, numClasses);
 cnn = learn(cnn, data_train, labels_train, data_test, labels_test, options);
 
