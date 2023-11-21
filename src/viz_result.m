@@ -23,9 +23,10 @@ load(log_path + 'lr_ar.mat');
 
 % plot
 figure(1);
-plot(acc_test, 'LineWidth', 2);
+x = 1:5;
+plot(x,acc_test, 'LineWidth', 2);
 hold on;
-plot(acc_train, 'LineWidth', 2);
+plot(x,acc_train, 'LineWidth', 2);
 hold off;
 grid on;
 xlabel('Epoch');

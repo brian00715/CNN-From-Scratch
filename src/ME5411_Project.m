@@ -1,4 +1,5 @@
 %% part_0 图像分割
+addpath("../data/")
 I = imread('charact2.jpg');
 [x1,x2,y1,y2] = deal(50,950,200,350);
 I1 = imcrop(I,[x1,y1,abs(x1-x2),abs(y1-y2)]);
