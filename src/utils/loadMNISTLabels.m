@@ -16,4 +16,5 @@ function labels = loadMNISTLabels(filename)
 
     fclose(fp);
 
+
 end

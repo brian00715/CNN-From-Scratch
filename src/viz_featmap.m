@@ -1,3 +1,4 @@
+% analyze the fearture map of miss classified images
 close all;
 clear all;
 
@@ -12,18 +13,16 @@ addpath("cnn_core");
 % log_path = log_path + logs(idx).name + "/";
 % disp("Loading log from " + log_path);
 
-log_path = "../logs/11-19_15-56-26/";
+log_path = "E:\ProgramDev\NUS-ME5411\logs\best\lr_max_1\";
 
 load(log_path + "cnn_best_acc.mat");
-load("../data/test.mat")
+% load("../data/test.mat")
 
-% analyze the fearture map of miss classified images
-% find the index of miss classified images in the test set
-[preds, cnn] = predict(cnn, data_test);
-select_mask = (preds ~= labels_test) & (preds == 7);
-miss_idx = find(select_mask);
-
-if 1 % viz the featmap of label 7
+if 0 % viz the featmap of label 7
+    % find the index of miss classified images in the test set
+    [preds, cnn] = predict(cnn, data_test);
+    select_mask = (preds ~= labels_test) & (preds == 7);
+    miss_idx = find(select_mask);
     h_idx = find(labels_test == 7);
     % average feature map of label 7
     ave_featmap_conv1 = zeros(120, 120, 8);
@@ -130,13 +129,23 @@ if 0 % viz the feature map of miss classified images
 
 end
 
-if 0 % viz the feature map of a given image
+if 1 % viz the feature map of a given image
     % choose a random image
-    idx = 100;
+
+    % idx = 100;
     % idx = miss_idx(1:10);
-    img = data_test(:, :, :, idx);
-    img_dim = size(img, 1);
-    img = reshape(img, img_dim, img_dim, 1, []);
+    % img = data_test(:, :, :, idx);
+
+    img = imread("..\temp\D-1.png");
+    imshow(img);
+
+    data_test = img;
+    data_test = double(data_test) / 255;
+    data_test = imresize(data_test, [124, 124]);
+    % 124x124 -> 124x124x1x1
+    data_test = reshape(data_test, 124,124, 1, []);
+
+    [preds, cnn] = predict(cnn, data_test);
     layer_num = size(cnn.layers, 1);
 
     for layer = 2:4
@@ -148,7 +157,9 @@ if 0 % viz the feature map of a given image
             subplot(rows, rows, i);
             featmap = cnn.layers{layer}.convolvedFeatures(:, :, i);
             imshow(featmap);
+            % imwrite(featmap, sprintf("../temp/featmap_0_l%d.png", i));
         end
+        saveas(gcf, sprintf("../temp/featmap_D1_l%d.png", layer));
 
     end
 

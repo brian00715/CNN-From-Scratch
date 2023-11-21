@@ -18,9 +18,9 @@ function images = loadMNISTImages(filename)
 
     fclose(fp);
 
-    % Reshape to #pixels x #examples
-    images = reshape(images, size(images, 1) * size(images, 2), size(images, 3));
     % Convert to double and rescale to [0,1]
     images = double(images) / 255;
+    img_dim = size(images, 1);
+    images = reshape(images, img_dim, img_dim, 1, []);
 
 end

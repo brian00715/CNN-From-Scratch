@@ -14,7 +14,8 @@ function [cnn, loss] = calcuLoss(cnn, x, y, options)
 
     %% Compute loss
     if cnn.layers{numLayers}.softmax == true
-        groundTruth = full(sparse(y, 1:numImages, 1, numClasses, numImages));
+%         groundTruth = full(sparse(y, 1:numImages, 1, numClasses, numImages));
+        groundTruth = bsxfun(@eq, y(:), 0:numClasses-1)';
         loss = -1 ./ numImages * groundTruth(:)' * log(cnn.layers{end}.activations(:)); % cross-entrophy loss
         % l2 loss
         if options.use_l2

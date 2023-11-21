@@ -77,7 +77,7 @@ function [data_train, labels_train, data_test, labels_test] = loadDataset(data_p
                         if endsWith(filename, '.png')
                             img = imread(fullfile(fullPath, filename));
 
-                            if options.apply_rand_tf && p == 1  && options.rand_tf.prob > rand()
+                            if options.apply_rand_tf && p == 1 && options.rand_tf.prob > rand()
                                 img = randTF(img, options.rand_tf);
                             end
 
@@ -108,14 +108,16 @@ function [data_train, labels_train, data_test, labels_test] = loadDataset(data_p
             [data_test, labels_test] = shuffleData(data_test, labels_test);
         end
 
-        data_train = reshape(data_train, img_dim, img_dim, 1, []);
-        labels_train = permute(labels_train, [2, 1]);
-        data_test = reshape(data_test, img_dim, img_dim, 1, []);
-        labels_test = permute(labels_test, [2, 1]);
-
-        if options.save
-            save('../data/train.mat', 'data_train', 'labels_train');
-            save('../data/test.mat', 'data_test', 'labels_test');
-        end
-
     end
+
+    data_train = reshape(data_train, img_dim, img_dim, 1, []);
+    labels_train = permute(labels_train, [2, 1]);
+    data_test = reshape(data_test, img_dim, img_dim, 1, []);
+    labels_test = permute(labels_test, [2, 1]);
+
+    if options.save
+        save('../data/train.mat', 'data_train', 'labels_train');
+        save('../data/test.mat', 'data_test', 'labels_test');
+    end
+
+end

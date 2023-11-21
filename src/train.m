@@ -21,12 +21,22 @@ random_trans.rot_range = [-25 25];
 random_trans.scale_ratio = [1 1];
 dataset_option.rand_tf = random_trans;
 
-if ~load_from_file
-    [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_option);
-else
-    load("../data/train.mat");
-    load("../data/test.mat");
-end
+% load("logs/cnn_mnist.mat");
+data_train = loadMNISTImages("../data/mnist/train-images-idx3-ubyte");
+labels_train = loadMNISTLabels("../data/mnist/train-labels-idx1-ubyte");
+data_test = loadMNISTImages("../data/mnist/t10k-images-idx3-ubyte");
+labels_test = loadMNISTLabels("../data/mnist/t10k-labels-idx1-ubyte");
+
+% resize to 124x124
+data_train = imresize(data_train, [124 124]);
+data_test = imresize(data_test, [124 124]);
+
+% if ~load_from_file
+%     [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_option);
+% else
+%     load("../data/train.mat");
+%     load("../data/test.mat");
+% end
 
 %% define network structure
 
@@ -79,8 +89,8 @@ options.epochs = 60;
 options.minibatch = 64;
 options.lr_max = 0.1;
 options.lr = options.lr_max;
-options.lr_min = 1e-7;
-options.lr_method = 'cosine_cyclic';
+options.lr_min = 1e-5;
+options.lr_method = 'linear';
 options.lr_duty = 20; % epoches per cycle
 options.momentum = 0.9;
 options.log_path = log_path;
@@ -93,9 +103,8 @@ options.total_iter = total_iter;
 fprintf('Total iterations: %d\n', total_iter);
 
 %% train
-numClasses = max(labels_train);
+numClasses = max(labels_train)+ 1-min(labels_train) ;
 cnn = initModelParams(cnn, data_train, numClasses);
-% load("logs/cnn_mnist.mat");
 cnn = learn(cnn, data_train, labels_train, data_test, labels_test, options);
 
 %% test
