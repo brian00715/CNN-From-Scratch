@@ -108,9 +108,8 @@ function [cnn_final] = learn(cnn, data_train, labels_train, data_test, labels_te
         [preds,~] = predict(cnn, data_test);
         curr_acc_test = sum(preds == labels_test) / length(preds);
         acc_test = [acc_test; curr_acc_test];
-        % [preds,~] = predict(cnn, data_train);
-        % curr_acc_train = sum(preds == labels_train) / length(preds);
-        curr_acc_train = 0;
+        [preds,~] = predict(cnn, data_train);
+        curr_acc_train = sum(preds == labels_train) / length(preds);
         acc_train = [acc_train; curr_acc_train];
         fprintf('\nEpoch %d: acc_test:%f acc_train:%f\n', e, curr_acc_test, curr_acc_train);
 

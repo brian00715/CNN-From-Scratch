@@ -247,7 +247,7 @@ train_options.total_iter = total_iter;
 %% 2.1 learning rate
 
 %% 2.1.1 lr schedule scheme
-fprintf("2.1.1 lr schedule scheme\n")
+% fprintf("2.1.1 lr schedule scheme\n")
 
 cnn.layers = {
               struct('type', 'input') %input layer
@@ -258,76 +258,101 @@ cnn.layers = {
               struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
               struct('type', 'output', 'softmax', 1)
               };
-lr_sheculer = {'fixed', 'cosine', 'cosine_cyclic', "linear"};
+% lr_sheculer = {'fixed', 'cosine', 'cosine_cyclic', "linear"};
 
-for subexp = 1:4
-    fprintf("2.1.1 lr schedule scheme subexp: %d\n", subexp)
-    train_options.lr_method = lr_sheculer{subexp};
-    log_path = sprintf("../logs/exp2_1_1/lr_method_%d/", subexp);
+% for subexp = 1:4
+%     fprintf("2.1.1 lr schedule scheme subexp: %d\n", subexp)
+%     train_options.lr_method = lr_sheculer{subexp};
+%     log_path = sprintf("../logs/exp2_1_1/lr_method_%d/", subexp);
 
-    if ~exist(log_path, 'dir')
-        mkdir(log_path);
-    end
+%     if ~exist(log_path, 'dir')
+%         mkdir(log_path);
+%     end
 
-    train_options.log_path = log_path;
-    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
-end
+%     train_options.log_path = log_path;
+%     trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+% end
 
-%% 2.1.2 lr magnitude
-fprintf("2.1.2 lr magnitude\n")
+% %% 2.1.2 lr magnitude
+% fprintf("2.1.2 lr magnitude\n")
 
-lr_max = [0.5, 0.1, 0.01, 0.001];
-train_options.lr_method = 'cosine';
+% lr_max = [0.5, 0.1, 0.01, 0.001];
+% train_options.lr_method = 'cosine';
 
-for subexp = 1:4
-    fprintf("2.1.2 lr magnitude subexp: %d\n", subexp)
-    train_options.lr_max = lr_max(subexp);
-    train_options.lr = train_options.lr_max;
-    log_path = sprintf("../logs/exp2_1_2/lr_max_%d/", subexp);
+% for subexp = 1:4
+%     fprintf("2.1.2 lr magnitude subexp: %d\n", subexp)
+%     train_options.lr_max = lr_max(subexp);
+%     train_options.lr = train_options.lr_max;
+%     log_path = sprintf("../logs/exp2_1_2/lr_max_%d/", subexp);
 
-    if ~exist(log_path, 'dir')
-        mkdir(log_path);
-    end
+%     if ~exist(log_path, 'dir')
+%         mkdir(log_path);
+%     end
 
-    train_options.log_path = log_path;
-    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
-end
+%     train_options.log_path = log_path;
+%     trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+% end
 
-%% 2.2 batch size
+% %% 2.2 batch size
 
-batch_size = [16, 32, 64, 128];
-train_options.lr_max = 0.1;
-train_options.lr_method = 'cosine';
-train_options.lr = train_options.lr_max;
+% batch_size = [16, 32, 64, 128];
+% train_options.lr_max = 0.1;
+% train_options.lr_method = 'cosine';
+% train_options.lr = train_options.lr_max;
 
-for subexp = 1:4
-    train_options.minibatch = batch_size(subexp);
-    train_options.total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
-    options.lr_method = 'cosine_cyclic';
-    log_path = sprintf("../logs/exp2_2/batch_size_%d/", train_options.minibatch);
+% for subexp = 1:4
+%     train_options.minibatch = batch_size(subexp);
+%     train_options.total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
+%     options.lr_method = 'cosine_cyclic';
+%     log_path = sprintf("../logs/exp2_2/batch_size_%d/", train_options.minibatch);
 
-    if ~exist(log_path, 'dir')
-        mkdir(log_path);
-    end
+%     if ~exist(log_path, 'dir')
+%         mkdir(log_path);
+%     end
 
-    train_options.log_path = log_path;
-    trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
-end
+%     train_options.log_path = log_path;
+%     trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+% end
 
-%% 3 data preprocessing
+%% 2.3 epoch number
 
-%% 3.1 resize
+% train_options.minibatch = 32;
+% train_options.lr_max = 0.1;
+% train_options.lr_method = 'linear';
+% train_options.lr = train_options.lr_max;
+% train_options.lr_min = 1e-5;
+% epoch_num = [10, 20, 40, 60, 80];
+
+% for subexp = size(epoch_num)
+%     epoch = epoch_num(subexp);
+%     train_options.epochs = epoch;
+%     train_options.total_iter = round(floor(size(data_train, 4) / train_options.minibatch) * train_options.epochs);
+%     log_path = sprintf("../logs/exp2_3/epoch_%d/", train_options.epochs);
+
+%     if ~exist(log_path, 'dir')
+%         mkdir(log_path);
+%     end
+
+%     train_options.log_path = log_path;
+%     trainMachine(cnn, dataset_options, train_options, data_train, labels_train, data_test, labels_test);
+% end
+
+% %% 3 data preprocessing
+
+% %% 3.1 resize
 
 %% 3.2 random transform
 fprintf("3.2 random transform\n")
 
 tf = [
-      "only_trans"
-      "only_rot"
-      "only_scale"
-      "rot&trans"
-      "rot&scale"
-      "all"
+%   "only_trans"
+%   "only_rot"
+%   "only_scale"
+%   "rot&trans"
+%   "rot&scale"
+      "trans&scale"
+%   "all"
+      "none"
       ];
 train_options.lr_max = 0.1;
 train_options.lr = train_options.lr_max;
@@ -344,12 +369,16 @@ random_trans.trans_ratio = trans_ratio;
 random_trans.rot_range = rot_range;
 random_trans.scale_ratio = scale_ratio;
 
-for subexp = 1:6
+for subexp = 1:size(tf, 1)
     fprintf("3.2 random transform subexp: %d\n", subexp)
     tf_type = tf{subexp};
     fprintf("tf_type: %s\n", tf_type);
 
     switch tf_type
+        case "none"
+            random_trans.rot_range = [0 0];
+            random_trans.scale_ratio = [1 1];
+            random_trans.trans_ratio = 0;
         case "only_trans"
             random_trans.rot_range = [0 0];
             random_trans.scale_ratio = [1 1];
@@ -370,6 +399,10 @@ for subexp = 1:6
             random_trans.rot_range = rot_range;
             random_trans.scale_ratio = scale_ratio;
             random_trans.trans_ratio = 0;
+        case "trans&scale"
+            random_trans.rot_range = [0 0];
+            random_trans.scale_ratio = scale_ratio;
+            random_trans.trans_ratio = trans_ratio;
         case "all"
             random_trans.rot_range = rot_range;
             random_trans.scale_ratio = scale_ratio;
@@ -378,7 +411,7 @@ for subexp = 1:6
 
     dataset_options.rand_tf = random_trans;
     [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, dataset_options);
-    log_path = sprintf("../logs/exp3_2/rand_tf_%d/", subexp);
+    log_path = sprintf("../logs/exp3_2/rand_tf_%s/", tf_type);
 
     if ~exist(log_path, 'dir')
         mkdir(log_path);
