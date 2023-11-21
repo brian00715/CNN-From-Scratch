@@ -1,4 +1,4 @@
-% Otsu.m
+% myOtsuThres.m
 % Discription: This function implements Otsu's method to find the best binary threshold.
 % 
 % Input:
@@ -6,7 +6,7 @@
 % 
 % Return:
 %   best_threshold - the best binary threshold
-function best_threshold = OtsuThres(img_gray)
+function best_threshold = myOtsuThres(img_gray)
 
     % Initialize variables
     num_bins = 256; % Number of grayscale levels

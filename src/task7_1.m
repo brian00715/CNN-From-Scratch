@@ -1,5 +1,10 @@
+% Task 7.1: Design a CNN to classify each character i
+
 clear all; %#ok<CLALL>
+close all;
+
 addpath("cnn_core");
+addpath('image_core');
 addpath("utils");
 
 date_prefix = string(datetime('now', 'Format', 'MM-dd_HH-mm-ss'));

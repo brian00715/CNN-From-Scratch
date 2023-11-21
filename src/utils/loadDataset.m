@@ -1,5 +1,6 @@
 function [data_train, labels_train, data_test, labels_test] = loadDataset(data_path, options)
     addpath('cnn_core');
+    addpath('image_core');
     labels_name = {'0', '4', '7', '8', 'A', 'D', 'H'};
     data_train = [];
     labels_train = [];

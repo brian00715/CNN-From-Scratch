@@ -1,6 +1,7 @@
 close all; % show the images that are miss classified
 clear all;
-addpath("cnn_core")
+addpath("cnn_core");
+addpath('image_core');
 
 log_path = "E:\ProgramDev\NUS-ME5411\logs\best\lr_max_1\";
 % load(log_path + "/results_on_test.mat")

@@ -3,6 +3,7 @@ load("../data/train.mat");
 load("../data/test.mat");
 
 addpath("cnn_core/");
+addpath('image_core');
 figure;
 
 data = data_train;

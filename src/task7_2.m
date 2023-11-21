@@ -1,3 +1,4 @@
+% Task 7.2: Desing a classification system, using a non-CNN-based method
 clc; clear;
 dsFolder = "p_dataset_26";
 subFolder = ["0", "4", "7", "8", "A", "D", "H"];

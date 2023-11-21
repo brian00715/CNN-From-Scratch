@@ -4,6 +4,7 @@ clear all;
 
 % visualize features extracted by the network
 addpath("cnn_core");
+addpath('image_core');
 
 % find the latest log
 % log_path = "../logs/";
