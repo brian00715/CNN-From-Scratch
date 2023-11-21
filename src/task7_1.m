@@ -17,7 +17,7 @@ data_path = "../data/";
 dataset_option.load_raw = false;
 dataset_option.shuffle = true;
 dataset_option.img_dim = 124;
-dataset_option.train_ratio = 0.8;
+dataset_option.train_ratio = 0.75;
 dataset_option.save = true;
 dataset_option.apply_rand_tf = true;
 random_trans.prob = 0.5;
@@ -46,14 +46,14 @@ end
 %% define network structure
 
 % 32x32->(conv)28x28x6->(pool)14x14x6->(conv)10x10x16->(pool)5x5x16=400->(linear)120->(linear)84
-cnn.layers = {
-              struct('type', 'input') %input layer
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 6, 'poolDim', 2, 'actiFunc', 'relu')
-              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 2, 'actiFunc', 'relu')
-              struct('type', 'Linear', 'hiddenUnits', 120, 'actiFunc', 'tanh')
-              struct('type', 'Linear', 'hiddenUnits', 84, 'actiFunc', 'tanh')
-              struct('type', 'output', 'softmax', 1)
-              };
+% cnn.layers = {
+%               struct('type', 'input') %input layer
+%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 6, 'poolDim', 2, 'actiFunc', 'relu')
+%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 2, 'actiFunc', 'relu')
+%               struct('type', 'Linear', 'hiddenUnits', 120, 'actiFunc', 'tanh')
+%               struct('type', 'Linear', 'hiddenUnits', 84, 'actiFunc', 'tanh')
+%               struct('type', 'output', 'softmax', 1)
+%               };
 
 % 68x68 ->(conv) 64x64x8 ->(pool) 32x32x8 ->(conv) 28x28x16 ->(pool) 14x14x16 ->(conv) 10x10x32 ->(pool) 5x5x32=1000 ->(linear) 200 ->(linear) 100
 % cnn.layers = {
@@ -67,15 +67,15 @@ cnn.layers = {
 %               };
 
 % 124x124->(conv)120x120x8->(pool)30x30x8->(conv)26x26x16->(pool)13x13x16->(conv)9x9x32->(pool)3x3x32=288
-% cnn.layers = {
-%               struct('type', 'input') %input layer
-%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 4, 'poolDim', 4, 'actiFunc', 'relu')
-%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 2, 'actiFunc', 'relu')
-%               struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 3, 'actiFunc', 'relu')
-%               struct('type', 'Linear', 'hiddenUnits', 100, 'actiFunc', 'relu', 'dropout', 0.2)
-%               struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
-%               struct('type', 'output', 'softmax', 1)
-%               };
+cnn.layers = {
+              struct('type', 'input') %input layer
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 4, 'poolDim', 4, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 8, 'poolDim', 2, 'actiFunc', 'relu')
+              struct('type', 'Conv2D', 'filterDim', 5, 'numFilters', 16, 'poolDim', 3, 'actiFunc', 'relu')
+              struct('type', 'Linear', 'hiddenUnits', 100, 'actiFunc', 'relu', 'dropout', 0.2)
+              struct('type', 'Linear', 'hiddenUnits', 50, 'actiFunc', 'relu')
+              struct('type', 'output', 'softmax', 1)
+              };
 
 % 124x124->(conv)120x120x8->(pool)60x60x8->(conv)56x56x16->(pool)28x28x16->(conv)24x24x32->(pool)12x12x32->(conv)8x8x64->(pool)4x4x64=1024
 % cnn.layers = {

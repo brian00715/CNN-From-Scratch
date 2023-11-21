@@ -39,5 +39,6 @@ function erodedImage = myErode(inputImage, se)
         end
 
     end
+    erodedImage = uint8(erodedImage);
 
 end

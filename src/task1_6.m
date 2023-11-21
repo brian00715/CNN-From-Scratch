@@ -88,12 +88,12 @@ else
 end
 
 %% option2: open operation
-img_filted = imopen(img_filted, strel('disk', 8));
-% img_filted = myOpen(img_filted, strel('disk', 8));
-
+% img_filted = imopen(img_filted, strel('disk', 8));
+img_filted = myOpen(img_filted, strel('disk', 8));
+figure; imshow(img_filted); title('Opened Image');
 % erode vertically
-img_filted = imerode(img_filted, strel('line', 5, 90));
-% img_filted = myErode(img_filted, strel('line', 5, 90));
+% img_filted = imerode(img_filted, strel('line', 5, 90));
+img_filted = myErode(img_filted, strel('line', 5, 90));
 figure; imshow(img_filted); title('Eroded Image');
 %imwrite(img_filted,"before_bin.png");
 

@@ -39,5 +39,5 @@ function dilatedImage = myDilate(inputImage, se)
         end
 
     end
-
+    dilatedImage = uint8(dilatedImage);
 end

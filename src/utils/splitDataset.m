@@ -1,7 +1,7 @@
 data_path = '../data/p_dataset_26/';
 labels_name = {'0', '4', '7', '8', 'A', 'D'};
 files = dir(data_path);
-train_ratio = 0.8;
+train_ratio = 0.75;
 
 for i = 1:length(files)
     curr_file = files(i).name;
