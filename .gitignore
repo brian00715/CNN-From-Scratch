@@ -3,3 +3,7 @@ data
 **.DS_Store
 **.swp
 **sync*
+logs
+**test.m
+/code_samples
+/temp
