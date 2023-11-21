@@ -26,8 +26,11 @@ if 1
     random_trans.trans_ratio = 0.1;
     random_trans.rot_range = [-25 25];
     random_trans.scale_ratio = [0.8 1.2];
-    image = imread("../data/p_dataset_26/1/1_1.jpg");
-    randTF(image, random_trans)
+    image = imread("../data/p_dataset_26/H/img018-00821.png");
+    imwrite(image,"../temp/raw3.png");
+    img_tf = randTF(image, random_trans);
+    imshow(img_tf);
+    imwrite(img_tf,"../temp/tf3.png")
 end
 
 if 0

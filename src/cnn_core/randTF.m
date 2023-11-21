@@ -4,5 +4,5 @@ function augmentedImage = randTF(image,options)
     tform = randomAffine2d("Scale", options.scale_ratio, "XTranslation", [-trans_delta trans_delta], ...
         "YTranslation", [-trans_delta trans_delta], "Rotation", options.rot_range);
     centerOutput = affineOutputView(size(image), tform, "BoundsStyle", "CenterOutput");
-    augmentedImage = imwarp(image, tform, 'OutputView', centerOutput,"FillValues",1);
+    augmentedImage = imwarp(image, tform, 'OutputView', centerOutput,"FillValues",255);
 end
