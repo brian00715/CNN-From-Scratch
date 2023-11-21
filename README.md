@@ -4,12 +4,11 @@
 This repository comprises all code related to Continuous Assignment (CA) for NUS-ME5411.
 
 Team members (sort by first name):
-| Name          | ID       | Assignment                                                               |
-| ------------- | -------- | ------------------------------------------------------------------------ |
-| LI HAOWEI     |          | Implement principle function of task 2,3.<br />Try GUI (optional).       |
-| LIN YI        |  A0285080E        | Implement principle function of task 5,6.                                |
-| SIMA KUANKUAN | A0284990M | Implement task 1-6 based on MATLAB API and principle function of task 4. |
-
+| Name          | ID        |
+| ------------- | --------- | 
+| LI HAOWEI     | A0285319W          | 
+| LIN YI        | A0285080E | 
+| SIMA KUANKUAN | A0284990M | 
 ## Code structure
 ``` shell
 .
@@ -32,7 +31,7 @@ Team members (sort by first name):
 │   ├── task1_6.m          # main entrance for task 1-6
 │   ├── task7_1.m          # main entrance for task 7.1
 │   ├── task7_2.m          # main entrance for task 7.2
-│   └──  task8.m           # main entrance for task 8
+│   └── task8.m           # main entrance for task 8
 └── README.md
 
 ```
