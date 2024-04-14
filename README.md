@@ -1,14 +1,20 @@
 
-# NUS-ME5411-Group1
+# CNN-From-Scratch
 
-This repository comprises all code related to Continuous Assignment (CA) for NUS-ME5411.
+This repository contains the source code for the ME5411 continuous assessment project.
+
+Key Features:
+- [x] Implemented some fundamental image processing functions from scratch, located in `src/image_core`.
+- [x] Developed a custom CNN framework without using off-the-shelf libraries, including customizable model building, forward and backward propagation, parameter optimization using Stochastic Gradient Descent (SGD), etc., see `src/cnn_core`. Also implemented a digit recognition application.
+- [x] Created an automatic hyperparameter tuning pipeline for conducting comparison experiments.
 
 Team members (sort by first name):
 | Name          | ID        |
 | ------------- | --------- | 
-| LI HAOWEI     | A0285319W          | 
+| LI HAOWEI     | A0285319W | 
 | LIN YI        | A0285080E | 
 | SIMA KUANKUAN | A0284990M | 
+
 ## Code structure
 ``` shell
 .
@@ -31,7 +37,7 @@ Team members (sort by first name):
 │   ├── task1_6.m          # main entrance for task 1-6
 │   ├── task7_1.m          # main entrance for task 7.1
 │   ├── task7_2.m          # main entrance for task 7.2
-│   └── task8.m           # main entrance for task 8
+│   └── task8.m            # main entrance for task 8
 └── README.md
 
 ```
